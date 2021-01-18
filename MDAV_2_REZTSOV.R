@@ -92,13 +92,14 @@ count_day_statistics <- function(df){
   
   prijem <- sum(objednane_produkty$price)
   
-  objednavky <- objednane_produkty %>% group_by(user_session) %>% summarize(sum = sum(price), .groups='drop') 
-  prumer_objednavky <- mean(objednavky$sum) 
-  objednavky_count <- nrow(objednavky)
-  results <- list(prijem = prijem, prumer_objednavky = prumer_objednavky, objednavky_count = objednavky_count)
+  #objednavky <- objednane_produkty %>% group_by(user_session) %>% summarize(sum = sum(price), .groups='drop') 
+  #prumer_objednavky <- mean(objednavky$sum) 
+  #objednavky_count <- nrow(objednavky)
+  #results <- list(prijem = prijem, prumer_objednavky = prumer_objednavky, objednavky_count = objednavky_count)
+  results <- list(prijem = prijem)
+  
   return(results)
 }
-
 
 count_statistics <- function(data, month=T, week=T, day=T){
   final_result <- list()
@@ -165,7 +166,7 @@ count_statistics <- function(data, month=T, week=T, day=T){
     final_result[['month_brand_sales']]$index3_to_2 <- final_result[['month_brand_sales']]$prijem_3/final_result[['month_brand_sales']]$prijem_2*100-100
     final_result[['month_brand_sales']]$index4_to_3 <- final_result[['month_brand_sales']]$prijem_4/final_result[['month_brand_sales']]$prijem_3*100-100
     final_result[['month_brand_sales']]$index5_to_4 <- final_result[['month_brand_sales']]$prijem_5/final_result[['month_brand_sales']]$prijem_4*100-100
-    final_result[['month_brand_sales']]$prumer <- round(rowMeans(final_result[['month_brand_sales']][,c('prijem_1','prijem_2','prijem_3','prijem_4','prijem_5')]),1)
+    final_result[['month_brand_sales']]$prumer <- rowMeans(final_result[['month_brand_sales']][,c('prijem_1','prijem_2','prijem_3','prijem_4','prijem_5')])
     final_result[['month_brand_sales']][is.na(final_result[['month_brand_sales']] )] <- 0 
     
     final_result[['month_category_sales']]$index2_to_1 <- final_result[['month_category_sales']]$prijem_2/final_result[['month_category_sales']]$prijem_1*100-100
@@ -173,7 +174,7 @@ count_statistics <- function(data, month=T, week=T, day=T){
     final_result[['month_category_sales']]$index4_to_3 <- final_result[['month_category_sales']]$prijem_4/final_result[['month_category_sales']]$prijem_3*100-100
     final_result[['month_category_sales']]$index5_to_4 <- final_result[['month_category_sales']]$prijem_5/final_result[['month_category_sales']]$prijem_4*100-100
     
-    final_result[['month_category_sales']]$prumer <- round(rowMeans(final_result[['month_category_sales']][,c('prijem_1','prijem_2','prijem_3','prijem_4','prijem_5')]), 1)
+    final_result[['month_category_sales']]$prumer <- rowMeans(final_result[['month_category_sales']][,c('prijem_1','prijem_2','prijem_3','prijem_4','prijem_5')])
     
     final_result[['month_category_sales']][is.na(final_result[['month_category_sales']] )] <- 0 
     
@@ -181,20 +182,20 @@ count_statistics <- function(data, month=T, week=T, day=T){
   
   if(week){
     week_statistics <- list()
-    for(a in 1:18){
+    for(a in 1:22){
       week <- data %>% filter(week == a) %>% count_week_statistics()
       list_name = paste0('week_', a)
       week_statistics[[list_name]] <- week
     }
     
     #final_result <- list()
-    final_result[['week_prijmy']] <- data.frame(week=seq(1,18), prijem=rep(NA, 18))
-    final_result[['week_objednavka_mean']] <- data.frame(week=seq(1,18), prumer=rep(NA, 18))
-    final_result[['week_objednavky_count']] <- data.frame(week=seq(1,18), count=rep(NA, 18))
-    final_result[['week_konverze_visit_buy']] <- data.frame(week=seq(1,18), value=rep(NA, 18))
+    final_result[['week_prijmy']] <- data.frame(week=seq(1,22), prijem=rep(NA, 22))
+    final_result[['week_objednavka_mean']] <- data.frame(week=seq(1,22), prumer=rep(NA, 22))
+    final_result[['week_objednavky_count']] <- data.frame(week=seq(1,22), count=rep(NA, 22))
+    final_result[['week_konverze_visit_buy']] <- data.frame(week=seq(1,22), value=rep(NA, 22))
     
     
-    for(page in 1:18){
+    for(page in 1:22){
       final_result[['week_prijmy']][page, 2] <-week_statistics[[page]]$prijem
       final_result[['week_objednavka_mean']][page, 2] <- week_statistics[[page]]$prumer_objednavky
       final_result[['week_objednavky_count']][page, 2] <- week_statistics[[page]]$objednavky_count
@@ -213,6 +214,7 @@ count_statistics <- function(data, month=T, week=T, day=T){
     
     #final_result <- list()
     final_result[['day_prijmy']] <- data.frame(day=seq(1,123), prijem=rep(NA, 123))
+    
     
     for(page in 1:123){
       final_result[['day_prijmy']][page, 2] <-day_statistics[[page]]$prijem
@@ -246,7 +248,7 @@ grapg_brands_data[is.na(grapg_brands_data)] <- 0
 grapg_brands_data <- grapg_brands_data[grapg_brands_data$prumer>1,]
     
     
-ggplot(grapg_brands_data, aes(x = "", y=prumer, fill = brand)) + geom_bar(width = 1, stat = "identity") + theme(axis.line = element_blank(), plot.title = element_text (hjust=0.5)) + labs(fill="class", x= NULL, y= NULL, title="Pie Chart of class") + coord_polar(theta = "y", start=0)
+ggplot(grapg_brands_data, aes(x = "", y=prumer, fill = brand)) + geom_bar(width = 1, stat = "identity") + theme(axis.line = element_blank(), plot.title = element_text (hjust=0.5)) + labs(fill="class", x= NULL, y= NULL, title="Graf podílu brandu na celkových příjmech") + coord_polar(theta = "y", start=0)
   
 
  
