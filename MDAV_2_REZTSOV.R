@@ -206,17 +206,17 @@ count_statistics <- function(data, month=T, week=T, day=T){
   
   if(day){
     day_statistics <- list()
-    for(a in 1:123){
+    for(a in 1:152){
       day <- data %>% filter(day == a) %>% count_day_statistics()
       list_name = paste0('day', a)
       day_statistics[[list_name]] <- day
     }
     
     #final_result <- list()
-    final_result[['day_prijmy']] <- data.frame(day=seq(1,123), prijem=rep(NA, 123))
+    final_result[['day_prijmy']] <- data.frame(day=seq(1,152), prijem=rep(NA, 152))
     
     
-    for(page in 1:123){
+    for(page in 1:152){
       final_result[['day_prijmy']][page, 2] <-day_statistics[[page]]$prijem
     }
   }
